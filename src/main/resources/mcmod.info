@@ -1,0 +1,16 @@
+[
+{
+  "modid": "blockquarry",
+  "name": "Block Quarry",
+  "description": "The least laggy quarry you can get!",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["CallMeFoxie"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
