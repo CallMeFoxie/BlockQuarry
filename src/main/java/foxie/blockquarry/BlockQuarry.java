@@ -21,9 +21,15 @@ public class BlockQuarry {
    @Mod.Instance(MODID)
    public static BlockQuarry INSTANCE;
 
+   Config config;
+
+   public BlockQuarry() {
+      config = new Config();
+   }
+
    @Mod.EventHandler
    public void preinit(FMLPreInitializationEvent event) {
-      Config c = new Config(event.getSuggestedConfigurationFile().getAbsolutePath());
+      config.preinit(event.getModConfigurationDirectory().getAbsolutePath());
       proxy.preinit(event);
    }
 
