@@ -4,14 +4,14 @@ import foxie.blockquarry.Registrator;
 
 public class BlockReg {
 
-   public static BlockQuarrier blockQuarrier;
+   public static BlockQuarryMachine blockQuarryMachine;
 
    public static void preinit() {
-      blockQuarrier = new BlockQuarrier();
+      blockQuarryMachine = new BlockQuarryMachine();
    }
 
    public static void init() {
-      Registrator.registerBlock(blockQuarrier);
+      Registrator.registerBlock(blockQuarryMachine);
    }
 
    public static void postinit() {

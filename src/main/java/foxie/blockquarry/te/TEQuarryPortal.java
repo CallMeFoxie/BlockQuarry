@@ -2,6 +2,7 @@ package foxie.blockquarry.te;
 
 import foxie.blockquarry.BlockPos;
 import foxie.blockquarry.Config;
+import foxie.blockquarry.Tools;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -15,6 +16,7 @@ public class TEQuarryPortal extends TileEntity {
    // to simplify memory requirements I am using
    // Block[Y][X*width + Z]
    private QuarrySize    quarrySize;
+   private int           topGeneratedLevel;
 
    @Override
    public boolean canUpdate() {
@@ -25,51 +27,126 @@ public class TEQuarryPortal extends TileEntity {
       return blocks[yLevel] != null;
    }
 
-   private void generateY(int yLevel) {
-      // TODO
+   private void generateY(int yLevel, Random random) {
+      blocks[yLevel] = Tools.generateLevel(getQuarrySize().xSize, yLevel, getQuarrySize().zSize, random);
+      topGeneratedLevel = Math.min(yLevel, topGeneratedLevel);
+      markDirty();
    }
 
    private int getArrayPos(BlockPos pos) {
-      return pos.getX() * quarrySize.xSize + pos.getZ();
+      return pos.getX() * getQuarrySize().xSize + pos.getZ();
    }
 
    private ItemStack getBlock(BlockPos pos) {
       if (!isYGenerated(pos.getY()))
-         generateY(pos.getY());
+         generateY(pos.getY(), worldObj.rand);
 
       return blocks[pos.getY()][getArrayPos(pos)];
    }
 
-
+   /**
+    * THIS is what the public facing things should call!
+    *
+    * @param dugBlockPos position of the block that should be mined
+    * @return mined itemstack result
+    */
    public ItemStack getDugBlock(BlockPos dugBlockPos) {
       ItemStack foundBlock = getBlock(dugBlockPos);
-      if (foundBlock == null)
-         return null;
-
       setBlockMined(dugBlockPos);
-      return getBlock(dugBlockPos).copy();
+      return foundBlock;
+   }
+
+   /**
+    * THIS is what the public facing things should call!
+    *
+    * @return size of the quarry
+    */
+   public QuarrySize getQuarrySize() {
+      if (quarrySize == null || !quarrySize.generatedSize)
+         quarrySize = QuarrySize.generateRandom(worldObj.rand);
+
+      return quarrySize;
    }
 
    private void setBlockMined(BlockPos dugBlockPos) {
       blocks[dugBlockPos.getY()][getArrayPos(dugBlockPos)] = null;
+      markDirty();
    }
 
    @Override
    public void writeToNBT(NBTTagCompound compound) {
       super.writeToNBT(compound);
-      quarrySize.writeToNBT(compound);
+      getQuarrySize().writeToNBT(compound);
+
+      NBTTagCompound compBlocks = new NBTTagCompound();
+      compBlocks.setInteger("topGeneratedLevel", topGeneratedLevel);
+
+      for (int level = quarrySize.ySize; level >= topGeneratedLevel; level--) {
+         boolean anyBlocks = false;
+         for (int i = 0; i < blocks[level].length; i++) {
+            if (blocks[level][i] != null) {
+               anyBlocks = true;
+               break;
+            }
+         }
+         if (!anyBlocks) // skip empty level
+            continue;
+
+         NBTTagCompound levelTag = new NBTTagCompound();
+
+         for (int i = 0; i < blocks[level].length; i++) {
+            if (blocks[level][i] != null) {
+               levelTag.setTag("stack" + i, blocks[level][i].writeToNBT(new NBTTagCompound()));
+            }
+         }
+
+         compBlocks.setTag("level" + level, levelTag);
+      }
+
+      compound.setTag("blocks", compBlocks);
    }
 
    @Override
    public void readFromNBT(NBTTagCompound compound) {
       super.readFromNBT(compound);
       quarrySize.readFromNBT(compound);
+
+      if (!quarrySize.generatedSize)
+         quarrySize = QuarrySize.generateRandom(worldObj.rand);
+
+      // read the generated blocks
+      NBTTagCompound compound1 = compound.getCompoundTag("blocks");
+      if (compound1 == null)
+         return;
+
+      topGeneratedLevel = compound1.getInteger("topGeneratedLevel");
+      blocks = new ItemStack[quarrySize.ySize][quarrySize.xSize * quarrySize.zSize];
+
+      for (int level = quarrySize.ySize; level >= topGeneratedLevel; level--) {
+         if (compound1.getTag("level" + level) == null)
+            continue;
+
+         NBTTagCompound blocksTag = compound1.getCompoundTag("level" + level);
+
+         if (blocksTag == null) {
+            blocks[level] = null;
+            continue;
+         }
+
+         blocks[level] = new ItemStack[quarrySize.xSize * quarrySize.zSize];
+
+         for (int i = 0; i < quarrySize.xSize * quarrySize.zSize; i++) {
+            blocks[level][i] = ItemStack.loadItemStackFromNBT(blocksTag.getCompoundTag("stack" + i));
+         }
+      }
    }
 
    public static class QuarrySize {
       public int xSize;
       public int ySize;
       public int zSize;
+
+      public boolean generatedSize = false;
 
       public static QuarrySize generateRandom(Random random) {
          QuarrySize size = new QuarrySize();
@@ -82,6 +159,8 @@ public class TEQuarryPortal extends TileEntity {
          } else {
             size.xSize = size.zSize = 16;
          }
+
+         size.generatedSize = true;
 
          return size;
       }
@@ -105,6 +184,8 @@ public class TEQuarryPortal extends TileEntity {
          xSize = quarrySize.getInteger("xSize");
          ySize = quarrySize.getInteger("ySize");
          zSize = quarrySize.getInteger("zSize");
+
+         generatedSize = true;
       }
    }
 }

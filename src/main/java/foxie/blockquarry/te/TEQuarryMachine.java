@@ -2,5 +2,5 @@ package foxie.blockquarry.te;
 
 import net.minecraft.tileentity.TileEntity;
 
-public class TEQuarrier extends TileEntity {
+public class TEQuarryMachine extends TileEntity {
 }
