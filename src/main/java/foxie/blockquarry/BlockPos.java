@@ -2,6 +2,7 @@ package foxie.blockquarry;
 
 
 import net.minecraft.block.Block;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -23,6 +24,13 @@ public class BlockPos {
    public BlockPos(int x, int y, int z, ForgeDirection direction) {
       this(x, y, z);
       this.direction = direction;
+   }
+
+   public static BlockPos readFromNBT(NBTTagCompound compound) {
+      if (compound == null)
+         return new BlockPos(0, 0, 0);
+
+      return new BlockPos(compound.getInteger("x"), compound.getInteger("y"), compound.getInteger("z"));
    }
 
    public int getX() {
@@ -179,6 +187,12 @@ public class BlockPos {
 
    public int getMeta(World world) {
       return world.getBlockMetadata(x, y, z);
+   }
+
+   public void writeToNBT(NBTTagCompound compound) {
+      compound.setInteger("x", getX());
+      compound.setInteger("y", getY());
+      compound.setInteger("z", getZ());
    }
 
 }
