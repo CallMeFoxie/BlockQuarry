@@ -2,6 +2,7 @@ package foxie.blockquarry;
 
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
@@ -22,29 +23,53 @@ public class Config {
 
    public static List<ConfigGenOre> genOres;
 
+   public static Map<Integer, ConfigGenChanceLevel[]> oreGenLevelChances;
+
+   public static Map<Integer, Float> maxOreGenChance;
+   public static Config              INSTANCE;
    PreconfiguredOre              defaultPreconfiguredOre;
    Map<String, PreconfiguredOre> preconfiguredOreMap;
-
-   Configuration configBase;
-   Configuration configOres;
-
+   Map<String, String>           preconfiguredAliases;
+   Configuration                 configBase;
+   Configuration                 configOres;
    boolean haveOresBeenLoaded = false;
 
    public Config() {
+      INSTANCE = this;
+
       genOres = new ArrayList<ConfigGenOre>();
       preconfiguredOreMap = new HashMap<String, PreconfiguredOre>();
       defaultPreconfiguredOre = new PreconfiguredOre();
+      preconfiguredAliases = new HashMap<String, String>();
+      oreGenLevelChances = new HashMap<Integer, ConfigGenChanceLevel[]>();
+      maxOreGenChance = new HashMap<Integer, Float>();
+
       // init default values
       setupPresets();
 
       MinecraftForge.EVENT_BUS.register(this);
       // load vanilla entries because Forge is a derp and registers them before any mod is constructed... gg
       for (String ore : OreDictionary.getOreNames()) {
-         tryRegisteringOre(ore, OreDictionary.getOres(ore).get(0));
+         if (ore.startsWith("ore"))
+            tryRegisteringOre(ore, OreDictionary.getOres(ore).get(0));
       }
+
+      tryRegisteringOre("cobblestone", OreDictionary.getOres("cobblestone").get(0));
+
+      if (!OreDictionary.doesOreNameExist("dirt"))
+         OreDictionary.registerOre("dirt", Blocks.dirt);
+      if (!OreDictionary.doesOreNameExist("gravel"))
+         OreDictionary.registerOre("gravel", Blocks.gravel);
+
+      tryRegisteringOre("dirt", OreDictionary.getOres("dirt").get(0));
+      tryRegisteringOre("gravel", OreDictionary.getOres("gravel").get(0));
    }
 
    private void setupPresets() {
+      registerPreset("cobblestone", new PreconfiguredOre(1, 255, 1, 1, 25f));
+      registerPreset("dirt", new PreconfiguredOre(1, 255, 1, 4, 4f));
+      registerPreset("gravel", new PreconfiguredOre(1, 255, 8, 1, 2f));
+
       registerPreset("oreIron", new PreconfiguredOre(1, 255, 8, 1, 0.5f));
       registerPreset("oreGold", new PreconfiguredOre(1, 30, 8, 1, 0.2f));
       registerPreset("oreCopper", new PreconfiguredOre(30, 100, 12, 1, 0.4f));
@@ -71,8 +96,11 @@ public class Config {
       registerPreset("orePlatinum", new PreconfiguredOre(1, 10, 1, 1, 0.05f));
       registerPreset("oreSaltpeter", new PreconfiguredOre(80, 100, 4, 1, 0.2f));
       registerPreset("oreOsmium", new PreconfiguredOre(20, 120, 12, 1, 0.3f));
-      registerPreset("oreThorium", new PreconfiguredOre(1, 10, 1, 1, 0.1f));
-      // (vis crystal) amber
+      registerPreset("oreThorium", new PreconfiguredOre(1, 10, 1, 1, 0.05f));
+      registerPreset("apatite", new PreconfiguredOre(80, 160, 30, 1, 0.1f));
+      // (vis crystal) amber quicksilver
+
+      preconfiguredAliases.put("oreAluminum", "oreAluminium");
 
    }
 
@@ -113,17 +141,14 @@ public class Config {
    }
 
    private void tryRegisteringOre(String name, ItemStack stack) {
-      if (!name.substring(0, 3).equals("ore"))
-         return;
-
       if (haveOresBeenLoaded) {
          FMLLog.bigWarning("Some mod has just registered " + name + " waaayy too late in postinit! Sorry, this shall be " +
                  "ignored as config has been already loaded! ItemStack name: " + stack.getUnlocalizedName());
          return;
       }
 
-      if (name.equals("oreAluminum"))
-         name = "oreAluminium"; // USA pls
+      if (preconfiguredAliases.containsKey(name))
+         name = preconfiguredAliases.get(name);
 
       if (!genOres.contains(name)) {
          ConfigGenOre ore = new ConfigGenOre();
@@ -140,9 +165,45 @@ public class Config {
       }
    }
 
+   public ConfigGenChanceLevel[] getOreMapChance(int yLevel) {
+      if (!oreGenLevelChances.containsKey(yLevel)) {
+         float maxChance = 0f;
+         ConfigGenChanceLevel[] map = new ConfigGenChanceLevel[genOres.size()];
+         for (int i = 0; i < genOres.size(); i++) {
+            if (genOres.get(i).maxY >= yLevel && genOres.get(i).minY <= yLevel) {
+               // chance map
+               maxChance += genOres.get(i).chance;
+               map[i] = new ConfigGenChanceLevel(genOres.get(i), maxChance); // nextFloat() ceil() into the next value and you've got your ore
+            }
+         }
+
+         maxOreGenChance.put(yLevel, maxChance);
+         oreGenLevelChances.put(yLevel, map);
+      }
+
+      return oreGenLevelChances.get(yLevel);
+   }
+
+   public Float getOreMaxChance(int yLevel) {
+      if (!maxOreGenChance.containsKey(yLevel))
+         getOreMapChance(yLevel); // will generate it for us ;o
+
+      return maxOreGenChance.get(yLevel);
+   }
+
    @SubscribeEvent
    public void onOreRegistered(OreDictionary.OreRegisterEvent event) {
       tryRegisteringOre(event.Name, event.Ore);
+   }
+
+   public static class ConfigGenChanceLevel {
+      public ConfigGenOre ore;
+      public float        totalOrderChance;
+
+      public ConfigGenChanceLevel(ConfigGenOre ore, float totalOrderChance) {
+         this.ore = ore;
+         this.totalOrderChance = totalOrderChance;
+      }
    }
 
    public static class ConfigGenOre {
@@ -155,18 +216,23 @@ public class Config {
       public  float            chance; // fat chance he he he
       private PreconfiguredOre preconfiguredOre;
 
+      public static ConfigGenOre findClosestOre(ConfigGenChanceLevel[] chances, float chance) {
+         for (int i = 0; i < chances.length - 1; i++) { // linear search, boring, I know... maybe update later?
+            if (chances[i].totalOrderChance <= chance && chances[i + 1].totalOrderChance > chance) {
+               return chances[i].ore;
+            }
+         }
+
+         return chances[chances.length - 1].ore;
+      }
+
       public void initFromConfig(Configuration configuration) {
-         minY = configuration.getInt("minY", "ore." + getCutName(), preconfiguredOre.minY, 1, 255, "Min Y of ore" + oreName);
-         maxY = configuration.getInt("maxY", "ore." + getCutName(), preconfiguredOre.maxY, 1, 255, "Max Y of ore" + oreName);
-         clusterSize = configuration.getInt("clusterSize", "ore." + getCutName(), preconfiguredOre.clusterSize, 1, 255, "Cluster size of " + oreName);
-         stackSizeMax = configuration.getInt("stackSizeMax", "ore." + getCutName(), preconfiguredOre.stackSizeMax, 1, 64, "Max stack size of dropped itemstack per block");
-         chance = configuration.getFloat("chance", "ore." + getCutName(), preconfiguredOre.chance, 0, 1f, "Chance of " + oreName + " to spawn");
+         minY = configuration.getInt("minY", "gen." + oreName, preconfiguredOre.minY, 1, 255, "Min Y of ore" + oreName);
+         maxY = configuration.getInt("maxY", "gen." + oreName, preconfiguredOre.maxY, 1, 255, "Max Y of ore" + oreName);
+         clusterSize = configuration.getInt("clusterSize", "gen." + oreName, preconfiguredOre.clusterSize, 1, 255, "Cluster size of " + oreName);
+         stackSizeMax = configuration.getInt("stackSizeMax", "gen." + oreName, preconfiguredOre.stackSizeMax, 1, 64, "Max stack size of dropped itemstack per block");
+         chance = configuration.getFloat("chance", "gen." + oreName, preconfiguredOre.chance, 0, 1f, "Chance of " + oreName + " to spawn");
       }
-
-      public String getCutName() {
-         return oreName.substring(3).toLowerCase();
-      }
-
 
       @Override
       public boolean equals(Object o) {

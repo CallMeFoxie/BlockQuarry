@@ -10,12 +10,11 @@ import java.util.Random;
 
 public class TEQuarryPortal extends TileEntity {
 
-   private ItemStack[][][] blocks;
+   private ItemStack[][] blocks;
    // this will be a bit different to normal XYZ.
    // to simplify memory requirements I am using
-   // Block[Y][X][Z]
-   private int             topMinedOutY;
-   private QuarrySize      quarrySize;
+   // Block[Y][X*width + Z]
+   private QuarrySize    quarrySize;
 
    @Override
    public boolean canUpdate() {
@@ -24,19 +23,23 @@ public class TEQuarryPortal extends TileEntity {
 
    private boolean isYGenerated(int yLevel) {
       return blocks[yLevel] != null;
-
    }
 
    private void generateY(int yLevel) {
       // TODO
    }
 
+   private int getArrayPos(BlockPos pos) {
+      return pos.getX() * quarrySize.xSize + pos.getZ();
+   }
+
    private ItemStack getBlock(BlockPos pos) {
       if (!isYGenerated(pos.getY()))
          generateY(pos.getY());
 
-      return blocks[pos.getY()][pos.getX()][pos.getZ()];
+      return blocks[pos.getY()][getArrayPos(pos)];
    }
+
 
    public ItemStack getDugBlock(BlockPos dugBlockPos) {
       ItemStack foundBlock = getBlock(dugBlockPos);
@@ -48,17 +51,19 @@ public class TEQuarryPortal extends TileEntity {
    }
 
    private void setBlockMined(BlockPos dugBlockPos) {
-      blocks[dugBlockPos.getY()][dugBlockPos.getX()][dugBlockPos.getZ()] = null;
+      blocks[dugBlockPos.getY()][getArrayPos(dugBlockPos)] = null;
    }
 
    @Override
    public void writeToNBT(NBTTagCompound compound) {
       super.writeToNBT(compound);
+      quarrySize.writeToNBT(compound);
    }
 
    @Override
    public void readFromNBT(NBTTagCompound compound) {
       super.readFromNBT(compound);
+      quarrySize.readFromNBT(compound);
    }
 
    public static class QuarrySize {
@@ -91,8 +96,10 @@ public class TEQuarryPortal extends TileEntity {
       }
 
       public void readFromNBT(NBTTagCompound compound) {
-         if (!compound.hasKey("quarrySize"))
+         if (!compound.hasKey("quarrySize")) {
+            // should generate a new one possibly? nah screw it
             return;
+         }
 
          NBTTagCompound quarrySize = (NBTTagCompound) compound.getTag("quarrySize");
          xSize = quarrySize.getInteger("xSize");
