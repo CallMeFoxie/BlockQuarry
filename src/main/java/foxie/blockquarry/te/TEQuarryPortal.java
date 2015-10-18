@@ -46,6 +46,9 @@ public class TEQuarryPortal extends TileEntity {
 
    /**
     * THIS is what the public facing things should call!
+    * <p/>
+    * Yes, I require BlockPos because some implementation in the future MIGHT allow you to
+    * select different cut-out size or anything really!
     *
     * @param dugBlockPos position of the block that should be mined
     * @return mined itemstack result
