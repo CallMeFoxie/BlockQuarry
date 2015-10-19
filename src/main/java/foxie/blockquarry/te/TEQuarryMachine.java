@@ -31,7 +31,8 @@ public class TEQuarryMachine extends TileEntity implements IEnergyReceiver { // 
    public void writeToNBT(NBTTagCompound compound) {
       super.writeToNBT(compound);
       NBTTagCompound compCurrentBlockPos = new NBTTagCompound();
-      currentBlockPos.writeToNBT(compCurrentBlockPos);
+      if (currentBlockPos != null)
+         currentBlockPos.writeToNBT(compCurrentBlockPos);
       compound.setTag("currentBlockPos", compCurrentBlockPos);
       compound.setBoolean("workReady", workReady);
    }
@@ -95,8 +96,12 @@ public class TEQuarryMachine extends TileEntity implements IEnergyReceiver { // 
       if (!workReady) // we're possibly done
          return;
 
+      if (currentBlockPos == null)
+         currentBlockPos = new BlockPos(0, quarryPortal.getQuarrySize().ySize, 0); // start from the top
+
       // do magic by digging
-      int powerRequired = getPowerRequired();
+      //int powerRequired = getPowerRequired();
+      int powerRequired = 0;
       if (energyStorage.getEnergyStored() >= powerRequired) {
          energyStorage.extractEnergy(powerRequired, false);
          ItemStack stack = quarryPortal.getDugBlock(currentBlockPos);

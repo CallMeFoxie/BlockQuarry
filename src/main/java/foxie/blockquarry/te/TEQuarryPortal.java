@@ -6,6 +6,7 @@ import foxie.blockquarry.Tools;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 
 import java.util.Random;
 
@@ -17,6 +18,17 @@ public class TEQuarryPortal extends TileEntity {
    // Block[Y][X*width + Z]
    private QuarrySize    quarrySize;
    private int           topGeneratedLevel;
+
+   public TEQuarryPortal() {
+
+   }
+
+   public TEQuarryPortal(World world) {
+      // making new one I guess?
+      quarrySize = QuarrySize.generateRandom(world.rand);
+      blocks = new ItemStack[quarrySize.ySize][quarrySize.xSize * quarrySize.zSize];
+      topGeneratedLevel = quarrySize.ySize + 1; // above max
+   }
 
    @Override
    public boolean canUpdate() {

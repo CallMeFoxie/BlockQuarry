@@ -1,5 +1,6 @@
 package foxie.blockquarry.block;
 
+import foxie.blockquarry.BlockQuarry;
 import foxie.blockquarry.te.TEQuarryMachine;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -12,6 +13,9 @@ import net.minecraftforge.common.util.ForgeDirection;
 public class BlockQuarryMachine extends BlockContainer {
    protected BlockQuarryMachine() {
       super(Material.iron);
+      setBlockName("quarry_machine");
+      setBlockTextureName("quarry_machine");
+      setCreativeTab(BlockQuarry.creativeTabBlockQuarry);
    }
 
    @Override

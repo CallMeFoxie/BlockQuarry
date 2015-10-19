@@ -28,7 +28,7 @@ public class BlockPos {
 
    public static BlockPos readFromNBT(NBTTagCompound compound) {
       if (compound == null)
-         return new BlockPos(0, 0, 0);
+         return null;
 
       return new BlockPos(compound.getInteger("x"), compound.getInteger("y"), compound.getInteger("z"));
    }
