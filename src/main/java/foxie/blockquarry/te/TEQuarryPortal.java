@@ -20,13 +20,13 @@ public class TEQuarryPortal extends TileEntity {
    private int           topGeneratedLevel;
 
    public TEQuarryPortal() {
-
+      quarrySize = new QuarrySize();
    }
 
    public TEQuarryPortal(World world) {
       // making new one I guess?
       quarrySize = QuarrySize.generateRandom(world.rand);
-      blocks = new ItemStack[quarrySize.ySize][quarrySize.xSize * quarrySize.zSize];
+      blocks = new ItemStack[quarrySize.ySize][];
       topGeneratedLevel = quarrySize.ySize + 1; // above max
    }
 
@@ -66,6 +66,13 @@ public class TEQuarryPortal extends TileEntity {
     * @return mined itemstack result
     */
    public ItemStack getDugBlock(BlockPos dugBlockPos) {
+      if (dugBlockPos.getY() >= quarrySize.ySize || dugBlockPos.getY() < 0)
+         return null;
+      if (dugBlockPos.getX() >= quarrySize.xSize || dugBlockPos.getX() < 0)
+         return null;
+      if (dugBlockPos.getZ() >= quarrySize.zSize || dugBlockPos.getZ() < 0)
+         return null;
+
       ItemStack foundBlock = getBlock(dugBlockPos);
       setBlockMined(dugBlockPos);
       return foundBlock;
@@ -96,9 +103,13 @@ public class TEQuarryPortal extends TileEntity {
       NBTTagCompound compBlocks = new NBTTagCompound();
       compBlocks.setInteger("topGeneratedLevel", topGeneratedLevel);
 
-      for (int level = quarrySize.ySize; level >= topGeneratedLevel; level--) {
+      for (int level = quarrySize.ySize - 1; level >= topGeneratedLevel; level--) {
+         if (blocks[level] == null)
+            continue;
+
          boolean anyBlocks = false;
          for (int i = 0; i < blocks[level].length; i++) {
+
             if (blocks[level][i] != null) {
                anyBlocks = true;
                break;
@@ -135,7 +146,7 @@ public class TEQuarryPortal extends TileEntity {
          return;
 
       topGeneratedLevel = compound1.getInteger("topGeneratedLevel");
-      blocks = new ItemStack[quarrySize.ySize][quarrySize.xSize * quarrySize.zSize];
+      blocks = new ItemStack[quarrySize.ySize][];
 
       for (int level = quarrySize.ySize; level >= topGeneratedLevel; level--) {
          if (compound1.getTag("level" + level) == null)

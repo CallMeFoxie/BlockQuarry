@@ -97,7 +97,7 @@ public class TEQuarryMachine extends TileEntity implements IEnergyReceiver { // 
          return;
 
       if (currentBlockPos == null)
-         currentBlockPos = new BlockPos(0, quarryPortal.getQuarrySize().ySize, 0); // start from the top
+         currentBlockPos = new BlockPos(0, quarryPortal.getQuarrySize().ySize - 1, 0); // start from the top
 
       // do magic by digging
       //int powerRequired = getPowerRequired();
@@ -131,6 +131,9 @@ public class TEQuarryMachine extends TileEntity implements IEnergyReceiver { // 
    }
 
    private void ejectItemStack(ItemStack stack) {
+      if (stack == null)
+         return;
+
       for (ForgeDirection direction : ForgeDirection.VALID_DIRECTIONS) {
          TileEntity tileEntity = worldObj.getTileEntity(xCoord + direction.offsetX, yCoord + direction.offsetY, zCoord + direction.offsetZ);
          if (tileEntity instanceof IInventory) {

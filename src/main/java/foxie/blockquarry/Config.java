@@ -66,37 +66,37 @@ public class Config {
    }
 
    private void setupPresets() {
-      registerPreset("cobblestone", new PreconfiguredOre(1, 255, 1, 1, 25f));
-      registerPreset("dirt", new PreconfiguredOre(1, 255, 1, 4, 4f));
-      registerPreset("gravel", new PreconfiguredOre(1, 255, 8, 1, 2f));
+      registerPreset("cobblestone", new PreconfiguredOre(0, 255, 1, 1, 25f));
+      registerPreset("dirt", new PreconfiguredOre(0, 255, 1, 4, 4f));
+      registerPreset("gravel", new PreconfiguredOre(0, 255, 8, 1, 2f));
 
-      registerPreset("oreIron", new PreconfiguredOre(1, 255, 8, 1, 0.5f));
-      registerPreset("oreGold", new PreconfiguredOre(1, 30, 8, 1, 0.2f));
+      registerPreset("oreIron", new PreconfiguredOre(0, 255, 8, 1, 0.5f));
+      registerPreset("oreGold", new PreconfiguredOre(0, 30, 8, 1, 0.2f));
       registerPreset("oreCopper", new PreconfiguredOre(30, 100, 12, 1, 0.4f));
       registerPreset("oreTin", new PreconfiguredOre(60, 130, 10, 1, 0.25f));
-      registerPreset("oreDiamond", new PreconfiguredOre(1, 20, 8, 1, 0.05f));
-      registerPreset("oreEmerald", new PreconfiguredOre(1, 120, 1, 1, 0.01f));
-      registerPreset("oreLapis", new PreconfiguredOre(1, 30, 4, 1, 0.1f));
-      registerPreset("oreRedstone", new PreconfiguredOre(1, 30, 6, 1, 0.2f));
-      registerPreset("oreQuartz", new PreconfiguredOre(1, 255, 6, 1, 0));
-      registerPreset("oreCoal", new PreconfiguredOre(1, 255, 24, 1, 0.5f));
+      registerPreset("oreDiamond", new PreconfiguredOre(0, 20, 8, 1, 0.05f));
+      registerPreset("oreEmerald", new PreconfiguredOre(0, 120, 1, 1, 0.01f));
+      registerPreset("oreLapis", new PreconfiguredOre(0, 30, 4, 1, 0.1f));
+      registerPreset("oreRedstone", new PreconfiguredOre(0, 30, 6, 1, 0.2f));
+      registerPreset("oreQuartz", new PreconfiguredOre(0, 255, 6, 1, 0));
+      registerPreset("oreCoal", new PreconfiguredOre(0, 255, 24, 1, 0.5f));
       registerPreset("oreAluminium", new PreconfiguredOre(40, 80, 6, 1, 0.3f));
-      registerPreset("oreLead", new PreconfiguredOre(1, 40, 6, 1, 0.2f));
-      registerPreset("oreSilver", new PreconfiguredOre(1, 40, 6, 1, 0.2f));
+      registerPreset("oreLead", new PreconfiguredOre(0, 40, 6, 1, 0.2f));
+      registerPreset("oreSilver", new PreconfiguredOre(0, 40, 6, 1, 0.2f));
       registerPreset("oreRuby", new PreconfiguredOre(20, 60, 3, 1, 0.1f));
       registerPreset("oreSapphire", new PreconfiguredOre(20, 60, 3, 1, 0.1f));
       registerPreset("orePeridot", new PreconfiguredOre(20, 60, 3, 1, 0.1f));
       registerPreset("oreSulfur", new PreconfiguredOre(4, 12, 10, 1, 0.1f));
-      registerPreset("oreNickel", new PreconfiguredOre(1, 10, 2, 1, 0.07f));
+      registerPreset("oreNickel", new PreconfiguredOre(0, 10, 2, 1, 0.07f));
       registerPreset("oreCertus", new PreconfiguredOre(10, 150, 6, 1, 0.1f));
       registerPreset("oreCertusCharged", new PreconfiguredOre(10, 150, 6, 1, 0.05f));
       registerPreset("oreUranium", new PreconfiguredOre(5, 120, 1, 1, 0.1f));
       registerPreset("oreMonazit", new PreconfiguredOre(5, 120, 6, 1, 0.2f));
-      registerPreset("oreIridium", new PreconfiguredOre(1, 10, 1, 1, 0.02f));
-      registerPreset("orePlatinum", new PreconfiguredOre(1, 10, 1, 1, 0.05f));
+      registerPreset("oreIridium", new PreconfiguredOre(0, 10, 1, 1, 0.02f));
+      registerPreset("orePlatinum", new PreconfiguredOre(0, 10, 1, 1, 0.05f));
       registerPreset("oreSaltpeter", new PreconfiguredOre(80, 100, 4, 1, 0.2f));
       registerPreset("oreOsmium", new PreconfiguredOre(20, 120, 12, 1, 0.3f));
-      registerPreset("oreThorium", new PreconfiguredOre(1, 10, 1, 1, 0.05f));
+      registerPreset("oreThorium", new PreconfiguredOre(0, 10, 1, 1, 0.05f));
       registerPreset("apatite", new PreconfiguredOre(80, 160, 30, 1, 0.1f));
       // (vis crystal) amber quicksilver
 
@@ -227,8 +227,8 @@ public class Config {
       }
 
       public void initFromConfig(Configuration configuration) {
-         minY = configuration.getInt("minY", "gen." + oreName, preconfiguredOre.minY, 1, 255, "Min Y of ore" + oreName);
-         maxY = configuration.getInt("maxY", "gen." + oreName, preconfiguredOre.maxY, 1, 255, "Max Y of ore" + oreName);
+         minY = configuration.getInt("minY", "gen." + oreName, preconfiguredOre.minY, 0, 255, "Min Y of ore" + oreName);
+         maxY = configuration.getInt("maxY", "gen." + oreName, preconfiguredOre.maxY, 0, 255, "Max Y of ore" + oreName);
          clusterSize = configuration.getInt("clusterSize", "gen." + oreName, preconfiguredOre.clusterSize, 1, 255, "Cluster size of " + oreName);
          stackSizeMax = configuration.getInt("stackSizeMax", "gen." + oreName, preconfiguredOre.stackSizeMax, 1, 64, "Max stack size of dropped itemstack per block");
          chance = configuration.getFloat("chance", "gen." + oreName, preconfiguredOre.chance, 0, 1f, "Chance of " + oreName + " to spawn");
