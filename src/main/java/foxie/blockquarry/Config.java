@@ -66,9 +66,9 @@ public class Config {
    }
 
    private void setupPresets() {
-      registerPreset("cobblestone", new PreconfiguredOre(0, 255, 1, 1, 25f));
-      registerPreset("dirt", new PreconfiguredOre(0, 255, 1, 4, 4f));
-      registerPreset("gravel", new PreconfiguredOre(0, 255, 8, 1, 2f));
+      registerPreset("cobblestone", new PreconfiguredOre(0, 255, 1, 1, 125f));
+      registerPreset("dirt", new PreconfiguredOre(0, 255, 1, 4, 20f));
+      registerPreset("gravel", new PreconfiguredOre(0, 255, 8, 1, 5f));
 
       registerPreset("oreIron", new PreconfiguredOre(0, 255, 8, 1, 0.5f));
       registerPreset("oreGold", new PreconfiguredOre(0, 30, 8, 1, 0.2f));
@@ -168,17 +168,18 @@ public class Config {
    public ConfigGenChanceLevel[] getOreMapChance(int yLevel) {
       if (!oreGenLevelChances.containsKey(yLevel)) {
          float maxChance = 0f;
-         ConfigGenChanceLevel[] map = new ConfigGenChanceLevel[genOres.size()];
+         //ConfigGenChanceLevel[] map = new ConfigGenChanceLevel[genOres.size()];
+         ArrayList<ConfigGenChanceLevel> map = new ArrayList<ConfigGenChanceLevel>();
          for (int i = 0; i < genOres.size(); i++) {
             if (genOres.get(i).maxY >= yLevel && genOres.get(i).minY <= yLevel) {
                // chance map
                maxChance += genOres.get(i).chance;
-               map[i] = new ConfigGenChanceLevel(genOres.get(i), maxChance); // nextFloat() ceil() into the next value and you've got your ore
+               map.add(new ConfigGenChanceLevel(genOres.get(i), maxChance)); // nextFloat() ceil() into the next value and you've got your ore
             }
          }
 
          maxOreGenChance.put(yLevel, maxChance);
-         oreGenLevelChances.put(yLevel, map);
+         oreGenLevelChances.put(yLevel, map.toArray(new ConfigGenChanceLevel[map.size()]));
       }
 
       return oreGenLevelChances.get(yLevel);

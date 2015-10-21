@@ -25,6 +25,8 @@ public class TEQuarryMachine extends TileEntity implements IEnergyReceiver { // 
    public TEQuarryMachine() {
       energyStorage = new EnergyStorage(POWER_CAPACITY);
       workReady = true;
+      if (worldObj != null)
+         loadQuarryPortal();
    }
 
    @Override
@@ -40,7 +42,7 @@ public class TEQuarryMachine extends TileEntity implements IEnergyReceiver { // 
    @Override
    public void readFromNBT(NBTTagCompound compound) {
       super.readFromNBT(compound);
-      NBTTagCompound compCurrentBlockPos = compound.getCompoundTag("currentBlockpos");
+      NBTTagCompound compCurrentBlockPos = compound.getCompoundTag("currentBlockPos");
       currentBlockPos = BlockPos.readFromNBT(compCurrentBlockPos);
       workReady = compound.getBoolean("workReady");
    }
@@ -73,6 +75,9 @@ public class TEQuarryMachine extends TileEntity implements IEnergyReceiver { // 
       TileEntity tileEntity = worldObj.getTileEntity(xCoord, yCoord - 1, zCoord);
       if (tileEntity instanceof TEQuarryPortal) {
          quarryPortal = (TEQuarryPortal) tileEntity;
+      } else {
+         currentBlockPos = null;
+         quarryPortal = null;
       }
    }
 
@@ -89,6 +94,10 @@ public class TEQuarryMachine extends TileEntity implements IEnergyReceiver { // 
          return;
 
       if (quarryPortal == null)
+         loadQuarryPortal();
+      if (quarryPortal == null)
+         return;
+      if (quarryPortal.isInvalid())
          loadQuarryPortal();
       if (quarryPortal == null)
          return;

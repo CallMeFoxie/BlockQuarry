@@ -148,7 +148,7 @@ public class TEQuarryPortal extends TileEntity {
       topGeneratedLevel = compound1.getInteger("topGeneratedLevel");
       blocks = new ItemStack[quarrySize.ySize][];
 
-      for (int level = quarrySize.ySize; level >= topGeneratedLevel; level--) {
+      for (int level = quarrySize.ySize - 1; level >= topGeneratedLevel; level--) {
          if (compound1.getTag("level" + level) == null)
             continue;
 
