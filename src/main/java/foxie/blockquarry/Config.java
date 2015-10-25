@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.Map;
 
 public class Config {
-   public static float quarrySizeMiddle = 0.5f;
-   public static float quarrySizeBig    = 0.5f;
+   public static float quarrySizeMiddle = 0.3f;
+   public static float quarrySizeBig    = 0.2f;
 
    public static int quarryMinY = 80;
    public static int quarryMaxY = 150;
@@ -114,7 +114,6 @@ public class Config {
    }
 
    public void preinit(String path) {
-      // TODO base config loader
       configBase = new Configuration(getConfigFile(path, "base"));
       configOres = new Configuration(getConfigFile(path, "ores"));
    }
@@ -133,6 +132,15 @@ public class Config {
          // iterate through and load their configs from configOres.get(oreName.clusterSize) etc
          ore.initFromConfig(configOres);
       }
+
+      quarryMinY = configBase.getInt("quarryMinY", "config", quarryMinY, 2, 255, "Minimum generated Y for quarry portal");
+      quarryMaxY = configBase.getInt("quarryMaxY", "config", quarryMaxY, 2, 255, "Maximum generated Y for quarry portal");
+
+      if (quarryMinY > quarryMaxY)
+         quarryMaxY = quarryMinY;
+
+      quarrySizeMiddle = configBase.getFloat("quarrySizeMiddle", "config", quarrySizeMiddle, 0f, 1f, "Chance of generating middle sized quarry [32x32]");
+      quarrySizeBig = configBase.getFloat("quarrySizeMiddle", "config", quarrySizeBig, 0f, 1f, "Chance of generating big sized quarry [64x64]");
 
       if (configOres.hasChanged())
          configOres.save();
@@ -170,11 +178,11 @@ public class Config {
          double maxChance = 0f;
          //ConfigGenChanceLevel[] map = new ConfigGenChanceLevel[genOres.size()];
          ArrayList<ConfigGenChanceLevel> map = new ArrayList<ConfigGenChanceLevel>();
-         for (int i = 0; i < genOres.size(); i++) {
-            if (genOres.get(i).maxY >= yLevel && genOres.get(i).minY <= yLevel) {
+         for (ConfigGenOre genOre : genOres) {
+            if (genOre.maxY >= yLevel && genOre.minY <= yLevel) {
                // chance map
-               map.add(new ConfigGenChanceLevel(genOres.get(i), maxChance)); // nextDouble() ceil() into the next value and you've got your ore
-               maxChance += genOres.get(i).chance;
+               map.add(new ConfigGenChanceLevel(genOre, maxChance)); // nextDouble() ceil() into the next value and you've got your ore
+               maxChance += genOre.chance;
             }
          }
 
@@ -239,7 +247,7 @@ public class Config {
       @Override
       public boolean equals(Object o) {
          if (o instanceof String)
-            return oreName.equals((String) o);
+            return oreName.equals(o);
 
          if (!(o instanceof ConfigGenOre))
             return super.equals(o);
