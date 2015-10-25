@@ -41,6 +41,8 @@ public class BlockQuarryMachine extends BlockContainer {
          player.addChatMessage(new ChatComponentText("Digging: X: " + machine.getCurrentBlockPos().getX() + ", Y: " +
                  machine.getCurrentBlockPos().getY() + ", Z: " + machine.getCurrentBlockPos().getZ()));
          player.addChatMessage(new ChatComponentText("Power: " + machine.getEnergyStored(ForgeDirection.UNKNOWN)));
+
+         return true;
       }
 
       return super.onBlockActivated(world, x, y, z, player, side, hitX, hitY, hitZ);

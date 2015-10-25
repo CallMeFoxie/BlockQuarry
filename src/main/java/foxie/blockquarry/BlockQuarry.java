@@ -4,6 +4,7 @@ import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.*;
+import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import foxie.blockquarry.block.BlockReg;
@@ -54,6 +55,7 @@ public class BlockQuarry {
       proxy.init(event);
       BlockReg.init();
       ItemReg.init();
+      GameRegistry.registerWorldGenerator(new BQWorldGen(), 1);
    }
 
    @Mod.EventHandler
