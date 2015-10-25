@@ -12,7 +12,7 @@ public class BlockQuarryPortal extends BlockContainer {
       super(Material.rock);
       setBlockUnbreakable();
       setBlockName("quarry_portal");
-      setBlockTextureName("quarry_portal");
+      setBlockTextureName("blockquarry:quarry_portal");
       setCreativeTab(BlockQuarry.creativeTabBlockQuarry);
    }
 

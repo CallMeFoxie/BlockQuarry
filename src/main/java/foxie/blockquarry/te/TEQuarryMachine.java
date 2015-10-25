@@ -109,8 +109,8 @@ public class TEQuarryMachine extends TileEntity implements IEnergyReceiver { // 
          currentBlockPos = new BlockPos(0, quarryPortal.getQuarrySize().ySize - 1, 0); // start from the top
 
       // do magic by digging
-      //int powerRequired = getPowerRequired();
-      int powerRequired = 0;
+      int powerRequired = getPowerRequired();
+      //int powerRequired = 0;
       if (energyStorage.getEnergyStored() >= powerRequired) {
          energyStorage.extractEnergy(powerRequired, false);
          ItemStack stack = quarryPortal.getDugBlock(currentBlockPos);

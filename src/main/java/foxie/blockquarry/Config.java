@@ -25,8 +25,8 @@ public class Config {
 
    public static Map<Integer, ConfigGenChanceLevel[]> oreGenLevelChances;
 
-   public static Map<Integer, Float> maxOreGenChance;
-   public static Config              INSTANCE;
+   public static Map<Integer, Double> maxOreGenChance;
+   public static Config               INSTANCE;
    PreconfiguredOre              defaultPreconfiguredOre;
    Map<String, PreconfiguredOre> preconfiguredOreMap;
    Map<String, String>           preconfiguredAliases;
@@ -42,7 +42,7 @@ public class Config {
       defaultPreconfiguredOre = new PreconfiguredOre();
       preconfiguredAliases = new HashMap<String, String>();
       oreGenLevelChances = new HashMap<Integer, ConfigGenChanceLevel[]>();
-      maxOreGenChance = new HashMap<Integer, Float>();
+      maxOreGenChance = new HashMap<Integer, Double>();
 
       // init default values
       setupPresets();
@@ -66,9 +66,9 @@ public class Config {
    }
 
    private void setupPresets() {
-      registerPreset("cobblestone", new PreconfiguredOre(0, 255, 1, 1, 125f));
-      registerPreset("dirt", new PreconfiguredOre(0, 255, 1, 4, 20f));
-      registerPreset("gravel", new PreconfiguredOre(0, 255, 8, 1, 5f));
+      registerPreset("cobblestone", new PreconfiguredOre(0, 255, 1, 1, 25f));
+      registerPreset("dirt", new PreconfiguredOre(0, 255, 1, 4, 5f));
+      registerPreset("gravel", new PreconfiguredOre(0, 255, 8, 1, 1f));
 
       registerPreset("oreIron", new PreconfiguredOre(0, 255, 8, 1, 0.5f));
       registerPreset("oreGold", new PreconfiguredOre(0, 30, 8, 1, 0.2f));
@@ -167,14 +167,14 @@ public class Config {
 
    public ConfigGenChanceLevel[] getOreMapChance(int yLevel) {
       if (!oreGenLevelChances.containsKey(yLevel)) {
-         float maxChance = 0f;
+         double maxChance = 0f;
          //ConfigGenChanceLevel[] map = new ConfigGenChanceLevel[genOres.size()];
          ArrayList<ConfigGenChanceLevel> map = new ArrayList<ConfigGenChanceLevel>();
          for (int i = 0; i < genOres.size(); i++) {
             if (genOres.get(i).maxY >= yLevel && genOres.get(i).minY <= yLevel) {
                // chance map
+               map.add(new ConfigGenChanceLevel(genOres.get(i), maxChance)); // nextDouble() ceil() into the next value and you've got your ore
                maxChance += genOres.get(i).chance;
-               map.add(new ConfigGenChanceLevel(genOres.get(i), maxChance)); // nextFloat() ceil() into the next value and you've got your ore
             }
          }
 
@@ -185,7 +185,7 @@ public class Config {
       return oreGenLevelChances.get(yLevel);
    }
 
-   public Float getOreMaxChance(int yLevel) {
+   public Double getOreMaxChance(int yLevel) {
       if (!maxOreGenChance.containsKey(yLevel))
          getOreMapChance(yLevel); // will generate it for us ;o
 
@@ -194,14 +194,15 @@ public class Config {
 
    @SubscribeEvent
    public void onOreRegistered(OreDictionary.OreRegisterEvent event) {
-      tryRegisteringOre(event.Name, event.Ore);
+      if (event.Name.startsWith("ore"))
+         tryRegisteringOre(event.Name, event.Ore);
    }
 
    public static class ConfigGenChanceLevel {
       public ConfigGenOre ore;
-      public float        totalOrderChance;
+      public double       totalOrderChance;
 
-      public ConfigGenChanceLevel(ConfigGenOre ore, float totalOrderChance) {
+      public ConfigGenChanceLevel(ConfigGenOre ore, double totalOrderChance) {
          this.ore = ore;
          this.totalOrderChance = totalOrderChance;
       }
@@ -217,9 +218,9 @@ public class Config {
       public  float            chance; // fat chance he he he
       private PreconfiguredOre preconfiguredOre;
 
-      public static ConfigGenOre findClosestOre(ConfigGenChanceLevel[] chances, float chance) {
+      public static ConfigGenOre findClosestOre(ConfigGenChanceLevel[] chances, double chance) {
          for (int i = 0; i < chances.length - 1; i++) { // linear search, boring, I know... maybe update later?
-            if (chances[i].totalOrderChance <= chance && chances[i + 1].totalOrderChance > chance) {
+            if (chance >= chances[i].totalOrderChance && chances[i + 1].totalOrderChance > chance) {
                return chances[i].ore;
             }
          }
@@ -232,7 +233,7 @@ public class Config {
          maxY = configuration.getInt("maxY", "gen." + oreName, preconfiguredOre.maxY, 0, 255, "Max Y of ore" + oreName);
          clusterSize = configuration.getInt("clusterSize", "gen." + oreName, preconfiguredOre.clusterSize, 1, 255, "Cluster size of " + oreName);
          stackSizeMax = configuration.getInt("stackSizeMax", "gen." + oreName, preconfiguredOre.stackSizeMax, 1, 64, "Max stack size of dropped itemstack per block");
-         chance = configuration.getFloat("chance", "gen." + oreName, preconfiguredOre.chance, 0, 1f, "Chance of " + oreName + " to spawn");
+         chance = configuration.getFloat("chance", "gen." + oreName, preconfiguredOre.chance, 0, 1000f, "Chance of " + oreName + " to spawn");
       }
 
       @Override

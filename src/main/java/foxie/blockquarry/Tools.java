@@ -12,11 +12,11 @@ public class Tools {
       ItemStack[] leveldata = new ItemStack[x * z];
       int remaining = x * z;
 
-      float maxChance = Config.INSTANCE.getOreMaxChance(y);
+      double maxChance = Config.INSTANCE.getOreMaxChance(y);
       Config.ConfigGenChanceLevel[] chances = Config.INSTANCE.getOreMapChance(y);
 
       while (remaining > 0) {
-         float nextRand = random.nextFloat() * maxChance; // scale up
+         double nextRand = random.nextDouble() * maxChance; // scale up
          Config.ConfigGenOre ore = Config.ConfigGenOre.findClosestOre(chances, nextRand);
          int clusterSize = random.nextInt(Math.min(ore.clusterSize, remaining) + 1); // exclusive so +1
          // now fill the stacks up
