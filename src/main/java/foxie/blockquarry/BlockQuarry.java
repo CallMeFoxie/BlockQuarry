@@ -4,12 +4,12 @@ import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.*;
-import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import foxie.blockquarry.block.BlockReg;
 import foxie.blockquarry.item.ItemReg;
 import foxie.blockquarry.proxy.ProxyCommon;
+import foxie.lib.Registrator;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -44,6 +44,7 @@ public class BlockQuarry {
 
    @Mod.EventHandler
    public void preinit(FMLPreInitializationEvent event) {
+      Registrator.setContext(MODID);
       config.preinit(event.getModConfigurationDirectory().getAbsolutePath());
       proxy.preinit(event);
       BlockReg.preinit();
@@ -52,14 +53,16 @@ public class BlockQuarry {
 
    @Mod.EventHandler
    public void init(FMLInitializationEvent event) {
+      Registrator.setContext(MODID);
       proxy.init(event);
       BlockReg.init();
       ItemReg.init();
-      GameRegistry.registerWorldGenerator(new BQWorldGen(), 1);
+
    }
 
    @Mod.EventHandler
    public void postinit(FMLPostInitializationEvent event) {
+      Registrator.setContext(MODID);
       proxy.postinit(event);
       config.postinit();
       BlockReg.postinit();

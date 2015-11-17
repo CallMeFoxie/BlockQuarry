@@ -2,8 +2,9 @@ package foxie.blockquarry.te;
 
 import cofh.api.energy.EnergyStorage;
 import cofh.api.energy.IEnergyReceiver;
-import foxie.blockquarry.BlockPos;
 import foxie.blockquarry.Tools;
+import foxie.lib.BlockPos;
+import foxie.lib.Configurable;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -12,8 +13,13 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
 
 public class TEQuarryMachine extends TileEntity implements IEnergyReceiver { // TODO IC2 EU support?
+   @Configurable(comment = "power capacity of the Quarry machine")
    public static final int   POWER_CAPACITY  = 10000; // 10k RF
+
+   @Configurable(comment = "power creep per level")
    public static final float POWER_CREEP     = 1.1f; // 1.1-times more power than the layer above!
+
+   @Configurable(comment = "base power per block dug up")
    public static final int   POWER_PER_BLOCK = 100; // 100 RF per block?
 
    EnergyStorage energyStorage;

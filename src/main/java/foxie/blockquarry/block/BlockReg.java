@@ -1,8 +1,8 @@
 package foxie.blockquarry.block;
 
-import foxie.blockquarry.Registrator;
 import foxie.blockquarry.te.TEQuarryMachine;
 import foxie.blockquarry.te.TEQuarryPortal;
+import foxie.lib.Registrator;
 
 public class BlockReg {
 

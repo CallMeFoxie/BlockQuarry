@@ -1,8 +1,8 @@
 package foxie.blockquarry.te;
 
-import foxie.blockquarry.BlockPos;
-import foxie.blockquarry.Config;
 import foxie.blockquarry.Tools;
+import foxie.lib.BlockPos;
+import foxie.lib.Configurable;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -11,6 +11,16 @@ import net.minecraft.world.World;
 import java.util.Random;
 
 public class TEQuarryPortal extends TileEntity {
+
+   @Configurable(comment = "minimum generated Y for quarry portal")
+   public static int quarryMinY = 80;
+   @Configurable(comment = "maximum generated Y for quarry portal")
+   public static int quarryMaxY = 150;
+
+   @Configurable(comment = "chance of generating middle sized quarry [32x32]")
+   public static float quarrySizeMiddle = 0.3f;
+   @Configurable(comment = "chance of generating big sized quarry [64x64]")
+   public static float quarrySizeBig    = 0.2f;
 
    private ItemStack[][] blocks;
    // this will be a bit different to normal XYZ.
@@ -176,11 +186,11 @@ public class TEQuarryPortal extends TileEntity {
 
       public static QuarrySize generateRandom(Random random) {
          QuarrySize size = new QuarrySize();
-         size.ySize = random.nextInt(Config.quarryMaxY - Config.quarryMinY) + Config.quarryMinY;
+         size.ySize = random.nextInt(quarryMaxY - quarryMinY) + quarryMinY;
 
-         if (random.nextFloat() <= Config.quarrySizeBig) {
+         if (random.nextFloat() <= quarrySizeBig) {
             size.xSize = size.zSize = 64;
-         } else if (random.nextFloat() <= Config.quarrySizeMiddle) {
+         } else if (random.nextFloat() <= quarrySizeMiddle) {
             size.xSize = size.zSize = 32;
          } else {
             size.xSize = size.zSize = 16;

@@ -16,11 +16,6 @@ import java.util.List;
 import java.util.Map;
 
 public class Config {
-   public static float quarrySizeMiddle = 0.3f;
-   public static float quarrySizeBig    = 0.2f;
-
-   public static int quarryMinY = 80;
-   public static int quarryMaxY = 150;
 
    public static boolean dropDusts = true;
 
@@ -30,7 +25,7 @@ public class Config {
 
    public static Map<Integer, Double> maxOreGenChance;
    public static Config               INSTANCE;
-   public static float portalChance = 0.02f;
+
    PreconfiguredOre              defaultPreconfiguredOre;
    Map<String, PreconfiguredOre> preconfiguredOreMap;
    Map<String, String>           preconfiguredAliases;
@@ -132,14 +127,6 @@ public class Config {
    }
 
    public void postinit() { // actually loads the config here after all the oredict registrations have been done
-      quarryMinY = configBase.getInt("quarryMinY", "config", quarryMinY, 2, 255, "Minimum generated Y for quarry portal");
-      quarryMaxY = configBase.getInt("quarryMaxY", "config", quarryMaxY, 2, 255, "Maximum generated Y for quarry portal");
-
-      if (quarryMinY > quarryMaxY)
-         quarryMaxY = quarryMinY;
-
-      quarrySizeMiddle = configBase.getFloat("quarrySizeMiddle", "config", quarrySizeMiddle, 0f, 1f, "Chance of generating middle sized quarry [32x32]");
-      quarrySizeBig = configBase.getFloat("quarrySizeMiddle", "config", quarrySizeBig, 0f, 1f, "Chance of generating big sized quarry [64x64]");
 
       dropDusts = configBase.getBoolean("dropDusts", "config", dropDusts, "Drop dusts instead of ores if possible (false overrides the specific ore settings!) " +
               "(Change will be applied only to newly generated levels)");

@@ -2,6 +2,7 @@ package foxie.blockquarry;
 
 import cpw.mods.fml.common.IWorldGenerator;
 import foxie.blockquarry.block.BlockReg;
+import foxie.lib.Configurable;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
@@ -10,12 +11,16 @@ import net.minecraft.world.chunk.IChunkProvider;
 import java.util.Random;
 
 public class BQWorldGen implements IWorldGenerator {
+
+   @Configurable(comment = "Chance to spawn a portal")
+   public static float portalChance = 0.02f;
+
    @Override
    public void generate(Random random, int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider) {
       if (world.provider.dimensionId != 0)
          return;
 
-      if (random.nextFloat() > Config.portalChance)
+      if (random.nextFloat() > portalChance)
          return;
 
       int x = random.nextInt(16);
