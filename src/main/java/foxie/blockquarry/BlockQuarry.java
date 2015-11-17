@@ -9,13 +9,14 @@ import cpw.mods.fml.relauncher.SideOnly;
 import foxie.blockquarry.block.BlockReg;
 import foxie.blockquarry.item.ItemReg;
 import foxie.blockquarry.proxy.ProxyCommon;
-import foxie.lib.Registrator;
+import foxie.lib.Config;
+import foxie.lib.IFoxieMod;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 
 @Mod(modid = BlockQuarry.MODID, name = BlockQuarry.NAME, version = BlockQuarry.VERSION)
-public class BlockQuarry {
+public class BlockQuarry implements IFoxieMod {
    public static final String MODID   = "blockquarry";
    public static final String NAME    = "Block Quarry";
    public static final String AUTHOR  = "CallMeFoxie";
@@ -29,10 +30,11 @@ public class BlockQuarry {
 
    public static CreativeTabs creativeTabBlockQuarry;
 
-   Config config;
+   BQConfig BQConfig;
+   Config   config;
 
    public BlockQuarry() {
-      config = new Config();
+      BQConfig = new BQConfig();
       creativeTabBlockQuarry = new CreativeTabs("blockQuarry") {
          @Override
          @SideOnly(Side.CLIENT)
@@ -44,8 +46,8 @@ public class BlockQuarry {
 
    @Mod.EventHandler
    public void preinit(FMLPreInitializationEvent event) {
-      Registrator.setContext(MODID);
-      config.preinit(event.getModConfigurationDirectory().getAbsolutePath());
+      BQConfig.preinit(event.getModConfigurationDirectory().getAbsolutePath());
+      config = new Config(Config.getConfigFile(event.getModConfigurationDirectory().getAbsolutePath(), "base"));
       proxy.preinit(event);
       BlockReg.preinit();
       ItemReg.preinit();
@@ -53,7 +55,6 @@ public class BlockQuarry {
 
    @Mod.EventHandler
    public void init(FMLInitializationEvent event) {
-      Registrator.setContext(MODID);
       proxy.init(event);
       BlockReg.init();
       ItemReg.init();
@@ -62,9 +63,8 @@ public class BlockQuarry {
 
    @Mod.EventHandler
    public void postinit(FMLPostInitializationEvent event) {
-      Registrator.setContext(MODID);
       proxy.postinit(event);
-      config.postinit();
+      BQConfig.postinit();
       BlockReg.postinit();
       ItemReg.postinit();
    }
@@ -92,7 +92,7 @@ public class BlockQuarry {
             }
 
             try {
-               config.registerPreset(data[0], new Config.PreconfiguredOre(Integer.parseInt(data[1]), Integer.parseInt(data[2]),
+               BQConfig.registerPreset(data[0], new BQConfig.PreconfiguredOre(Integer.parseInt(data[1]), Integer.parseInt(data[2]),
                        Integer.parseInt(data[3]), Integer.parseInt(data[4]), Float.parseFloat(data[5])));
             } catch (Exception e) {
                FMLLog.bigWarning("Mod " + message.getSender() + " sent an invalid preconfigured ore option, almost made me crash!");
@@ -101,4 +101,8 @@ public class BlockQuarry {
       }
    }
 
+   @Override
+   public Config getConfig() {
+      return this.config;
+   }
 }

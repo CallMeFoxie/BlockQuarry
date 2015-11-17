@@ -12,12 +12,12 @@ public class Tools {
       ItemStack[] leveldata = new ItemStack[x * z];
       int remaining = x * z;
 
-      double maxChance = Config.INSTANCE.getOreMaxChance(y);
-      Config.ConfigGenChanceLevel[] chances = Config.INSTANCE.getOreMapChance(y);
+      double maxChance = BQConfig.INSTANCE.getOreMaxChance(y);
+      BQConfig.ConfigGenChanceLevel[] chances = BQConfig.INSTANCE.getOreMapChance(y);
 
       while (remaining > 0) {
          double nextRand = random.nextDouble() * maxChance; // scale up
-         Config.ConfigGenOre ore = Config.ConfigGenOre.findClosestOre(chances, nextRand);
+         BQConfig.ConfigGenOre ore = BQConfig.ConfigGenOre.findClosestOre(chances, nextRand);
          int clusterSize = random.nextInt(Math.min(ore.clusterSize, remaining) + 1); // exclusive so +1
          // now fill the stacks up
          for (; clusterSize > 0; clusterSize--) {

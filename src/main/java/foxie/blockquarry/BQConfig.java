@@ -2,6 +2,8 @@ package foxie.blockquarry;
 
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import foxie.blockquarry.te.TEQuarryMachine;
+import foxie.lib.Config;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -9,31 +11,26 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.oredict.OreDictionary;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Config {
-
-   public static boolean dropDusts = true;
-
+public class BQConfig {
    public static List<ConfigGenOre> genOres;
 
    public static Map<Integer, ConfigGenChanceLevel[]> oreGenLevelChances;
 
    public static Map<Integer, Double> maxOreGenChance;
-   public static Config               INSTANCE;
+   public static BQConfig             INSTANCE;
 
    PreconfiguredOre              defaultPreconfiguredOre;
    Map<String, PreconfiguredOre> preconfiguredOreMap;
    Map<String, String>           preconfiguredAliases;
-   Configuration                 configBase;
    Configuration                 configOres;
    boolean haveOresBeenLoaded = false;
 
-   public Config() {
+   public BQConfig() {
       INSTANCE = this;
 
       genOres = new ArrayList<ConfigGenOre>();
@@ -115,22 +112,11 @@ public class Config {
    }
 
    public void preinit(String path) {
-      configBase = new Configuration(getConfigFile(path, "base"));
-      configOres = new Configuration(getConfigFile(path, "ores"));
+      configOres = new Configuration(Config.getConfigFile(path, "ores"));
    }
 
-   private File getConfigFile(String path, String name) {
-      if (!(new File(path).exists()))
-         (new File(path)).mkdir();
-
-      return new File(path + File.separator + BlockQuarry.MODID + File.separator + name + ".cfg");
-   }
 
    public void postinit() { // actually loads the config here after all the oredict registrations have been done
-
-      dropDusts = configBase.getBoolean("dropDusts", "config", dropDusts, "Drop dusts instead of ores if possible (false overrides the specific ore settings!) " +
-              "(Change will be applied only to newly generated levels)");
-
       haveOresBeenLoaded = true;
 
       for (ConfigGenOre ore : genOres) {
@@ -138,7 +124,7 @@ public class Config {
          ore.initFromConfig(configOres);
       }
 
-      if (dropDusts) {
+      if (TEQuarryMachine.drop_dusts) {
          for (ConfigGenOre ore : genOres) {
             if (!ore.enableDusting)
                continue;
@@ -158,8 +144,6 @@ public class Config {
 
       if (configOres.hasChanged())
          configOres.save();
-      if (configBase.hasChanged())
-         configBase.save();
    }
 
    private void tryRegisteringOre(String name, ItemStack stack) {

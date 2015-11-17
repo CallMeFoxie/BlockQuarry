@@ -14,13 +14,17 @@ import net.minecraftforge.common.util.ForgeDirection;
 
 public class TEQuarryMachine extends TileEntity implements IEnergyReceiver { // TODO IC2 EU support?
    @Configurable(comment = "power capacity of the Quarry machine")
-   public static final int   POWER_CAPACITY  = 10000; // 10k RF
+   public static int POWER_CAPACITY = 10000; // 10k RF
 
    @Configurable(comment = "power creep per level")
-   public static final float POWER_CREEP     = 1.1f; // 1.1-times more power than the layer above!
+   public static float POWER_CREEP = 1.1f; // 1.1-times more power than the layer above!
 
    @Configurable(comment = "base power per block dug up")
-   public static final int   POWER_PER_BLOCK = 100; // 100 RF per block?
+   public static int POWER_PER_BLOCK = 100; // 100 RF per block?
+
+   @Configurable(comment = "Drop dusts instead of ores if possible (false overrides the specific ore settings!) " +
+           "(Change will be applied only to newly generated levels)")
+   public static boolean drop_dusts = true;
 
    EnergyStorage energyStorage;
    private BlockPos currentBlockPos; // currently mined block
