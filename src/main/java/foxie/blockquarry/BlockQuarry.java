@@ -19,7 +19,6 @@ import net.minecraft.item.Item;
 public class BlockQuarry implements IFoxieMod {
    public static final String MODID   = "blockquarry";
    public static final String NAME    = "Block Quarry";
-   public static final String AUTHOR  = "CallMeFoxie";
    public static final String VERSION = "@VERSION@";
 
    @SidedProxy(clientSide = "foxie.blockquarry.proxy.ProxyClient", serverSide = "foxie.blockquarry.proxy.ProxyCommon")
