@@ -11,6 +11,7 @@ import foxie.blockquarry.item.ItemReg;
 import foxie.blockquarry.proxy.ProxyCommon;
 import foxie.lib.Config;
 import foxie.lib.IFoxieMod;
+import foxie.lib.Registrator;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -57,7 +58,7 @@ public class BlockQuarry implements IFoxieMod {
       proxy.init(event);
       BlockReg.init();
       ItemReg.init();
-
+      Registrator.registerOreGen(new BQWorldGen(), 1);
    }
 
    @Mod.EventHandler
