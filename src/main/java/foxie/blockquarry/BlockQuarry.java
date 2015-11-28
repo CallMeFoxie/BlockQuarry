@@ -104,4 +104,9 @@ public class BlockQuarry implements IFoxieMod {
    public Config getConfig() {
       return this.config;
    }
+
+   @Override
+   public String getModId() {
+      return MODID;
+   }
 }
