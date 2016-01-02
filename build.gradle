@@ -25,14 +25,20 @@ configFile.withReader {
     project.ext.config = new ConfigSlurper().parse prop
 }
 
-version = "${config.minecraft_version}-${config.mod_version}"
+def VersionBuild = 0
+if (System.getenv("BUILD_NUMBER") != null) {
+    def buildver = System.getenv("BUILD_NUMBER")
+    VersionBuild = "-${buildver}"
+}
+
+version = "${config.minecraft_version}-${config.mod_version}${VersionBuild}"
 group = "foxie.blockquarry"
 archivesBaseName = "BlockQuarry"
 
 minecraft {
     version = config.minecraft_version + "-" + config.forge_version
     runDir = "run"
-    
+
     replaceIn "reference/Reference.java"
     replace "@VERSION@", "${config.mod_version}"
 
@@ -42,19 +48,19 @@ dependencies {
 }
 
 processResources
-{
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
+        {
+            inputs.property "version", project.version
+            inputs.property "mcversion", project.minecraft.version
 
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-        expand 'version':project.version, 'mcversion':project.minecraft.version
-    }
-        
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
-}
+            from(sourceSets.main.resources.srcDirs) {
+                include 'mcmod.info'
+                expand 'version': project.version, 'mcversion': project.minecraft.version
+            }
+
+            from(sourceSets.main.resources.srcDirs) {
+                exclude 'mcmod.info'
+            }
+        }
 
 task deobfJar(type: Jar) {
     from sourceSets.main.output
@@ -66,3 +72,55 @@ artifacts {
 }
 
 build.dependsOn deobfJar
+
+// deployment
+configurations { deployerJars }
+dependencies { deployerJars "org.apache.maven.wagon:wagon-ssh:2.2" }
+
+apply plugin: 'maven'
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            configuration = configurations.deployerJars
+
+            repository(url: "scp://maven.foxiehost.lan/home/maven/public/") {
+                authentication(userName: "maven", password: "maven")
+            }
+
+            pom {
+                groupId = project.group
+                version = project.version
+                artifactId = project.archivesBaseName
+                project {
+                    name project.archivesBaseName
+                    packaging 'jar'
+                    description 'BlockQuarry'
+                    url 'http://foxiemods.com/BlockQuarry'
+                    scm {
+                        url 'https://github.com/CallMeFoxie/BlockQuarry'
+                        connection 'scm:git:git@github.com:CallMeFoxie/BlockQuarry.git'
+                        developerConnection 'scm:git:git@github.com:CallMeFoxie/BlockQuarry.git'
+                    }
+                    issueManagement {
+                        system 'github'
+                        url 'https://github.com/CallMeFoxie/BlockQuarry/issues'
+                    }
+                    licenses {
+                        license {
+                            name 'TBD'
+                            url 'https://does-not-exist'
+                            distribution 'repo'
+                        }
+                    }
+                    developers {
+                        developer {
+                            id 'CallMeFoxie'
+                            name 'CallMeFoxie'
+                            roles { role 'developer' }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
